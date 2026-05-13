@@ -7,6 +7,6 @@ import react from '@astrojs/react';
 
 export default defineConfig({
   output: 'static',
-  adapter: node({ mode: 'standalone' }),
+  adapter: node({ mode: 'standalone', trustProxy: true }),
   integrations: [keystatic(), react()],
 });
