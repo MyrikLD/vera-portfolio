@@ -14,6 +14,13 @@ const allProjects = await reader.collections.projects.all();
 const featured = allProjects
   .filter((p) => p.entry.featured)
   .sort((a, b) => (a.entry.order ?? 0) - (b.entry.order ?? 0));
+
+const groupedByCompany = featured.reduce<Map<string, typeof featured>>((map, p) => {
+  const key = p.entry.company || '';
+  if (!map.has(key)) map.set(key, []);
+  map.get(key)!.push(p);
+  return map;
+}, new Map());
 ---
 
 <Layout title="Home">
@@ -50,22 +57,33 @@ const featured = allProjects
     </section>
   )}
 
-  {featured.length > 0 && (
-    <section class="featured container">
-      <h2 class="section-title">Featured Works</h2>
-      <div class="featured__grid">
-        {featured.map((project) => (
-          <ProjectCard
-            slug={project.slug}
-            title={project.entry.title}
-            cover={imgUrl(project.entry.cover)}
-            tags={project.entry.tags}
-          />
-        ))}
-      </div>
-      <a href="/works" class="featured__more">View all works →</a>
-    </section>
-  )}
+  <section class="overview container">
+    {[...groupedByCompany.entries()].map(([company, projects]) => {
+      const first = projects[0];
+      return (
+        <div class="overview__row">
+          <div class="overview__meta">
+            {company && <span class="exp__company">{company}</span>}
+            {first.entry.role && <span class="exp__role">{first.entry.role}</span>}
+            {first.entry.period && <span class="exp__period">{first.entry.period}</span>}
+          </div>
+          <div class="overview__works">
+            {projects.map((project) => (
+              <ProjectCard
+                slug={project.slug}
+                title={project.entry.title}
+                cover={imgUrl(project.entry.cover)}
+                tags={project.entry.tags}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    })}
+    {featured.length > 0 && (
+      <a href="/works" class="works__more">View all works →</a>
+    )}
+  </section>
 </Layout>
 
 <style>
@@ -154,32 +172,72 @@ const featured = allProjects
     color: var(--muted);
   }
 
-  .section-title {
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--text);
-    margin-bottom: 1.5rem;
-  }
-
-  .featured {
+  .overview {
     padding: 2rem 0 4rem;
+    border-top: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   }
 
-  .featured__grid {
+  .overview__row {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 2rem;
+    grid-template-columns: 220px 1fr;
+    gap: 2.5rem;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
+    align-items: start;
   }
 
-  .featured__more {
+  @media (max-width: 720px) {
+    .overview__row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  .overview__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .exp__company {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .exp__role {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .exp__period {
     font-family: var(--font-mono);
-    font-size: 0.9rem;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    margin-top: 0.1rem;
+  }
+
+  .overview__works {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .overview__works :global(.card) {
+    flex: 1 1 180px;
+    max-width: 240px;
+  }
+
+  .works__more {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
     color: var(--accent2);
     transition: opacity var(--transition);
   }
 
-  .featured__more:hover {
+  .works__more:hover {
     opacity: 0.75;
   }
 </style>

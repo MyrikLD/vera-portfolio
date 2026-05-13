@@ -17,6 +17,9 @@ export default config({
       format: { data: 'yaml' },
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
+        company: fields.text({ label: 'Company' }),
+        role: fields.text({ label: 'Role at company' }),
+        period: fields.text({ label: 'Period' }),
         date: fields.date({ label: 'Date' }),
         featured: fields.checkbox({ label: 'Featured', defaultValue: false }),
         order: fields.number({ label: 'Order', defaultValue: 0 }),

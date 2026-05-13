@@ -1,22 +1,24 @@
 name: Vera Yorsh
-bio: Illustrator & Game Graphics Artist. Creating worlds through characters, environments, and visual storytelling.
+bio: "2D Illustrator & Art Level Designer with commercial experience in game development, specializing in hidden object scenes, casual game art, and stylized illustration."
 email: ''
 telegram: '@Celebi28'
 linkedin: ''
 cv_url: ''
 skills:
+  - category: Game Art
+    items:
+      - Hidden Object Scenes
+      - Level Design
+      - Environment Art
+      - Prop Design
   - category: Illustration
     items:
       - Character Design
+      - Stylized Illustration
       - Concept Art
-      - Editorial Illustration
-  - category: Game Graphics
-    items:
-      - Environment Art
-      - UI/UX for Games
-      - Sprite Animation
+      - Promotional Visuals
   - category: Tools
     items:
-      - Procreate
       - Photoshop
-      - Aseprite
+      - Procreate
+      - Vector Graphics
