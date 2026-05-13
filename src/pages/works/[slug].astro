@@ -19,8 +19,8 @@ const project = await reader.collections.projects.read(slug!);
 
 if (!project) return Astro.redirect('/works');
 
-const { title, description, tags, gallery, cover } = project;
-const images = [cover, ...gallery].map(imgUrl).filter(Boolean) as string[];
+const { title, description, tags, gallery } = project;
+const images = gallery.map(imgUrl).filter(Boolean) as string[];
 ---
 
 <Layout title={title}>
