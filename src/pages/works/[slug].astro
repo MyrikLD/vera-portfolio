@@ -1,0 +1,105 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import Gallery from '../../components/Gallery.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../../keystatic.config';
+import { imgUrl } from '../../lib/images';
+
+export async function getStaticPaths() {
+  const reader = createReader(process.cwd(), keystaticConfig);
+  const projects = await reader.collections.projects.all();
+  return projects.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const reader = createReader(process.cwd(), keystaticConfig);
+const project = await reader.collections.projects.read(slug!);
+
+if (!project) return Astro.redirect('/works');
+
+const { title, description, tags, gallery, cover } = project;
+const images = [cover, ...gallery].map(imgUrl).filter(Boolean) as string[];
+---
+
+<Layout title={title}>
+  <article class="project container">
+    <a href="/works" class="project__back">← Back to works</a>
+
+    <header class="project__header">
+      <h1 class="project__title">{title}</h1>
+      {description && (
+      <div class="project__desc">
+        {description.split('\n\n').map((para) => <p>{para}</p>)}
+      </div>
+    )}
+      {tags.length > 0 && (
+        <ul class="project__tags">
+          {tags.map((tag) => <li class="project__tag">{tag}</li>)}
+        </ul>
+      )}
+    </header>
+
+    {images.length > 0 && <Gallery images={images} title={title} />}
+
+
+  </article>
+</Layout>
+
+<style>
+  .project {
+    padding: 2.5rem 0 4rem;
+  }
+
+  .project__back {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: inline-block;
+    margin-bottom: 2rem;
+    transition: color var(--transition);
+  }
+
+  .project__back:hover {
+    color: var(--accent2);
+  }
+
+  .project__header {
+    margin-bottom: 2rem;
+  }
+
+  .project__title {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .project__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+  }
+
+  .project__tag {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+  }
+
+  .project__desc {
+    margin-top: 2.5rem;
+    max-width: 680px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .project__desc :global(p) {
+    margin-bottom: 1em;
+  }
+</style>

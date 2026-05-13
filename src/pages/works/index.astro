@@ -1,0 +1,68 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import TagFilter from '../../components/TagFilter.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../../keystatic.config';
+import { imgUrl } from '../../lib/images';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const allProjects = await reader.collections.projects.all();
+
+const projects = allProjects.sort((a, b) => {
+  const orderDiff = (a.entry.order ?? 0) - (b.entry.order ?? 0);
+  if (orderDiff !== 0) return orderDiff;
+  return (b.entry.date ?? '').localeCompare(a.entry.date ?? '');
+});
+
+const allTags = [...new Set(projects.flatMap((p) => p.entry.tags))].sort();
+---
+
+<Layout title="Works">
+  <div class="works container">
+    <h1 class="works__title">Works</h1>
+    <TagFilter tags={allTags} />
+    <div class="works__grid">
+      {projects.map((project) => (
+        <ProjectCard
+          slug={project.slug}
+          title={project.entry.title}
+          cover={imgUrl(project.entry.cover)}
+          tags={project.entry.tags}
+        />
+      ))}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .works {
+    padding: 3rem 0 4rem;
+  }
+
+  .works__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 2rem;
+  }
+
+  .works__grid {
+    columns: 2;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .works__grid { columns: 3; }
+  }
+
+  @media (min-width: 1024px) {
+    .works__grid { columns: 4; }
+  }
+
+  .works__grid :global(.card) {
+    margin-bottom: 1.25rem;
+  }
+</style>

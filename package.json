@@ -1,5 +1,5 @@
 {
-  "name": "tender-telescope",
+  "name": "vera-portfolio",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -12,6 +12,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.3.1"
+    "@astrojs/node": "^9.5.5",
+    "@astrojs/react": "^5.0.4",
+    "@keystatic/astro": "^5.0.6",
+    "@keystatic/core": "^0.5.50",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^5.18.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   }
 }

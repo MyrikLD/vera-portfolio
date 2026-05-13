@@ -1,0 +1,66 @@
+---
+interface Props {
+  tags: string[];
+}
+
+const { tags } = Astro.props;
+---
+
+<div class="tag-filter">
+  <button class="tag-filter__btn tag-filter__btn--active" data-tag="all">All</button>
+  {tags.map((tag) => (
+    <button class="tag-filter__btn" data-tag={tag}>{tag}</button>
+  ))}
+</div>
+
+<script>
+  const btns = document.querySelectorAll<HTMLButtonElement>('.tag-filter__btn');
+  const cards = document.querySelectorAll<HTMLAnchorElement>('.card');
+
+  btns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag!;
+
+      btns.forEach((b) => b.classList.remove('tag-filter__btn--active'));
+      btn.classList.add('tag-filter__btn--active');
+
+      cards.forEach((card) => {
+        const cardTags: string[] = JSON.parse(card.dataset.tags || '[]');
+        const visible = tag === 'all' || cardTags.includes(tag);
+        card.style.display = visible ? '' : 'none';
+      });
+    });
+  });
+</script>
+
+<style>
+  .tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .tag-filter__btn {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    padding: 0.3rem 0.875rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+  }
+
+  .tag-filter__btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .tag-filter__btn--active {
+    background: var(--accent);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+</style>

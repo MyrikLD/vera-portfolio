@@ -1,17 +1,185 @@
 ---
+export const prerender = true;
 
+import Layout from '../layouts/Layout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../keystatic.config';
+import { imgUrl } from '../lib/images';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const profile = await reader.singletons.profile.read();
+const allProjects = await reader.collections.projects.all();
+
+const featured = allProjects
+  .filter((p) => p.entry.featured)
+  .sort((a, b) => (a.entry.order ?? 0) - (b.entry.order ?? 0));
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Home">
+  <section class="hero container">
+    <h1 class="hero__name">{profile?.name ?? 'Vera Yorsh'}</h1>
+    <p class="hero__bio">{profile?.bio}</p>
+
+    <div class="hero__links">
+      {profile?.telegram && (
+        <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noopener" class="hero__link">Telegram</a>
+      )}
+      {profile?.linkedin && (
+        <a href={profile.linkedin} target="_blank" rel="noopener" class="hero__link">LinkedIn</a>
+      )}
+      {profile?.email && (
+        <a href={`mailto:${profile.email}`} class="hero__link">Email</a>
+      )}
+      {profile?.cv_url && (
+        <a href={profile.cv_url} target="_blank" rel="noopener" class="hero__link hero__link--cta">Download CV</a>
+      )}
+    </div>
+  </section>
+
+  {profile?.skills && profile.skills.length > 0 && (
+    <section class="skills container">
+      {profile.skills.map((group) => (
+        <div class="skills__group">
+          <h2 class="skills__category">{group.category}</h2>
+          <ul class="skills__list">
+            {group.items.map((item) => <li class="skills__item">{item}</li>)}
+          </ul>
+        </div>
+      ))}
+    </section>
+  )}
+
+  {featured.length > 0 && (
+    <section class="featured container">
+      <h2 class="section-title">Featured Works</h2>
+      <div class="featured__grid">
+        {featured.map((project) => (
+          <ProjectCard
+            slug={project.slug}
+            title={project.entry.title}
+            cover={imgUrl(project.entry.cover)}
+            tags={project.entry.tags}
+          />
+        ))}
+      </div>
+      <a href="/works" class="featured__more">View all works →</a>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .hero {
+    padding: 5rem 0 3rem;
+  }
+
+  .hero__name {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .hero__bio {
+    max-width: 560px;
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .hero__link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    transition: color var(--transition), border-color var(--transition);
+  }
+
+  .hero__link:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .hero__link--cta {
+    background: var(--highlight);
+    border-color: var(--highlight);
+    color: #fff;
+  }
+
+  .hero__link--cta:hover {
+    opacity: 0.85;
+    color: #fff;
+    border-color: var(--highlight);
+  }
+
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    padding: 2rem 0 3rem;
+    border-top: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .skills__group {
+    min-width: 160px;
+  }
+
+  .skills__category {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+  }
+
+  .skills__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .skills__item {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
+
+  .featured {
+    padding: 2rem 0 4rem;
+  }
+
+  .featured__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .featured__more {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent2);
+    transition: opacity var(--transition);
+  }
+
+  .featured__more:hover {
+    opacity: 0.75;
+  }
+</style>

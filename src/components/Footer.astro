@@ -1,0 +1,63 @@
+---
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../keystatic.config';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const profile = await reader.singletons.profile.read();
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__links">
+      {profile?.email && (
+        <a href={`mailto:${profile.email}`} class="footer__link">Email</a>
+      )}
+      {profile?.telegram && (
+        <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noopener" class="footer__link">Telegram</a>
+      )}
+      {profile?.linkedin && (
+        <a href={profile.linkedin} target="_blank" rel="noopener" class="footer__link">LinkedIn</a>
+      )}
+    </div>
+    <p class="footer__copy">&copy; {new Date().getFullYear()} Vera Yorsh</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: auto;
+    border-top: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    padding: 2rem 0;
+  }
+
+  .footer__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer__links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .footer__link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    transition: color var(--transition);
+  }
+
+  .footer__link:hover {
+    color: var(--accent2);
+  }
+
+  .footer__copy {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    opacity: 0.6;
+  }
+</style>

@@ -1,0 +1,14 @@
+---
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../keystatic.config';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const profile = await reader.singletons.profile.read();
+const cvUrl = profile?.cv_url;
+
+if (cvUrl) {
+  return Astro.redirect(cvUrl, 302);
+}
+
+return Astro.redirect('/', 302);
+---
