@@ -4,31 +4,45 @@ on:
   push:
     branches: [main]
 
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          node-version: 22
-          cache: npm
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: npm ci
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}:latest
+          build-args: |
+            PUBLIC_KEYSTATIC_GITHUB_CLIENT_ID=${{ secrets.KEYSTATIC_GITHUB_CLIENT_ID }}
+          cache-from: type=registry,ref=${{ env.IMAGE }}:cache
+          cache-to: type=registry,ref=${{ env.IMAGE }}:cache,mode=max
 
-      - run: npm run build
-        env:
-          PUBLIC_KEYSTATIC_GITHUB_CLIENT_ID: ${{ secrets.KEYSTATIC_GITHUB_CLIENT_ID }}
-          PUBLIC_KEYSTATIC_GITHUB_REPO_OWNER: ${{ secrets.GITHUB_REPO_OWNER }}
-          PUBLIC_KEYSTATIC_GITHUB_REPO_NAME: ${{ secrets.GITHUB_REPO_NAME }}
-
-      - name: Deploy via rsync
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/deploy_key
-          chmod 600 /tmp/deploy_key
-          rsync -az --delete \
-            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }}" \
-            dist/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
-          rm /tmp/deploy_key
+#      - name: Deploy on server
+#        uses: appleboy/ssh-action@v1
+#        with:
+#          host: ${{ secrets.SSH_HOST }}
+#          username: ${{ secrets.SSH_USER }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          port: ${{ secrets.SSH_PORT }}
+#          script: |
+#            cd /opt/vera-portfolio
+#            docker compose pull
+#            docker compose up -d

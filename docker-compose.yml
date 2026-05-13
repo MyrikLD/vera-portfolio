@@ -1,0 +1,7 @@
+services:
+  app:
+    image: ghcr.io/myrikld/vera-portfolio:latest
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    env_file: .env
