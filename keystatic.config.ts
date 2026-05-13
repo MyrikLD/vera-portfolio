@@ -27,7 +27,7 @@ export default config({
         }),
         tags: fields.array(fields.text({ label: 'Tag' }), {
           label: 'Tags',
-          itemLabel: (props) => props.fields.value.value,
+          itemLabel: (props) => props.value,
         }),
         gallery: fields.array(
           fields.image({
@@ -58,7 +58,7 @@ export default config({
             category: fields.text({ label: 'Category' }),
             items: fields.array(fields.text({ label: 'Item' }), {
               label: 'Items',
-              itemLabel: (props) => props.fields.value.value,
+              itemLabel: (props) => props.value,
             }),
           }),
           {
